@@ -39,6 +39,7 @@ const parseBookData = ({ name, publisher, isbn }) => {
     [
       "caderno de atividades",
       "workbook",
+      "student's file",
       "cahier d'exercices",
       "cuaderno de ejercicios",
     ].some((v) => text.toLowerCase().trim().includes(v))
@@ -47,12 +48,12 @@ const parseBookData = ({ name, publisher, isbn }) => {
   if (typeIndex !== -1) nameSplit.splice(typeIndex, 1);
 
   const schoolYearIndex = nameSplit.findIndex((text) =>
-    text.trim().includes(".º Ano")
+    text.toLowerCase().trim().includes("º ano")
   );
   const schoolYear =
     schoolYearIndex === -1
       ? 0
-      : nameSplit[schoolYearIndex].trim().replace(".º Ano", "");
+      : nameSplit[schoolYearIndex].trim().replace(/\.?º ano/i, "");
   if (schoolYearIndex !== -1) nameSplit.splice(schoolYearIndex, 1);
 
   const publisherData = getPublisherData(publisher);
