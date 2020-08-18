@@ -70,12 +70,11 @@ const parseBookData = ({ name, publisher, isbn }) => {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: 200,
     display: "flex",
     marginTop: theme.spacing(4),
   },
   img: {
-    height: "100%",
+    height: 200,
     marginRight: theme.spacing(2),
   },
 }));
@@ -129,6 +128,17 @@ const Book = ({ img, url, title, author }) => {
           <Typography variant="h5">{title}</Typography>
         </Link>
         <Typography variant="h6">{author}</Typography>
+        <Typography variant="body1">
+          {data &&
+            [
+              data.name,
+              data.schoolYear,
+              data.formattedIsbn,
+              data.type,
+              data.publisher,
+              data.group,
+            ].join("  |  ")}
+        </Typography>
         <Button variant="contained" color="primary" onClick={onCopy}>
           Copiar Informação
         </Button>

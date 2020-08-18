@@ -51,7 +51,7 @@ export default function App() {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="md">
       <Box my={4}>
         <Typography variant="h4" component="h1" gutterBottom>
           Info Livros LPE
