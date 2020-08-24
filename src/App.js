@@ -8,6 +8,9 @@ import axios from "axios";
 import React, { useState } from "react";
 import Book from "./components/Book";
 import Input from "./components/Input";
+
+const WOOK_REGEX = /<script type="application\/ld\+json">[^]*?({[^]+})[^]*?<\/script>[^]*?<!-- Fim Google/;
+
 export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -29,20 +32,44 @@ export default function App() {
         response.data,
         "text/html"
       );
-      const data = Array.from(
-        responseDocument
-          .getElementsByClassName("search-products")[0]
-          .getElementsByClassName("product")
-      ).map((v) => ({
-        img: v.getElementsByClassName("img-responsive")[0]?.src,
-        url: `https://www.wook.pt${v
-          .getElementsByTagName("a")[0]
-          ?.getAttribute("href")}`,
-        title: v.getElementsByClassName("title-lnk")[0]?.innerText?.trim(),
-        author: v.getElementsByClassName("autor")[0]?.innerText?.trim(),
-      }));
-      setItems(data);
-      setLoading(false);
+      try {
+        const data = Array.from(
+          responseDocument
+            .getElementsByClassName("search-products")[0]
+            .getElementsByClassName("product")
+        ).map((v) => ({
+          img: v.getElementsByClassName("img-responsive")[0]?.src,
+          url: `https://www.wook.pt${v
+            .getElementsByTagName("a")[0]
+            ?.getAttribute("href")}`,
+          title: v.getElementsByClassName("title-lnk")[0]?.innerText?.trim(),
+          author: v.getElementsByClassName("autor")[0]?.innerText?.trim(),
+        }));
+        setItems(data);
+        setLoading(false);
+      } catch (e) {
+        const dataString = WOOK_REGEX.exec(response.data)?.[1];
+        if (!dataString) {
+          console.error(e);
+          setLoading(false);
+          setError(true);
+          return;
+        }
+
+        const bookMetadata = JSON.parse(dataString);
+        console.log(bookMetadata);
+        setItems([
+          {
+            title: bookMetadata.name,
+            publisher: bookMetadata.publisher?.name,
+            isbn: bookMetadata.isbn,
+            url: response.request.responseURL || "",
+            author: bookMetadata.author?.name,
+            img: bookMetadata.image,
+          },
+        ]);
+        setLoading(false);
+      }
     } catch (e) {
       console.error(e);
       setLoading(false);

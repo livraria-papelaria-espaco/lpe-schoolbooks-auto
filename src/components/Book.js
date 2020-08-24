@@ -1,7 +1,7 @@
 import { Button, Link, Snackbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const WOOK_REGEX = /<script type="application\/ld\+json">[^]*?({[^]+})[^]*?<\/script>[^]*?<!-- Fim Google/;
 
@@ -105,12 +105,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Book = ({ img, url, title, author }) => {
+const Book = ({ img, url, title, author, publisher, isbn }) => {
   const [data, setData] = useState(null);
   const [snackbarText, setSnackbarText] = useState("");
   const classes = useStyles();
 
   const wookId = url.split("/").pop();
+
+  useEffect(() => {
+    if (publisher && isbn)
+      parseBookData({
+        name: title,
+        publisher,
+        isbn,
+        wookId,
+      }).then(setData);
+  }, [title, wookId, publisher, isbn]);
 
   const handleSnackbarClose = () => setSnackbarText("");
 
@@ -119,7 +129,7 @@ const Book = ({ img, url, title, author }) => {
       let stateData = data;
       if (!stateData) {
         const response = await axios.get(url);
-        const dataString = WOOK_REGEX.exec(response.data)?.[1] || [];
+        const dataString = WOOK_REGEX.exec(response.data)?.[1] || "{}";
         const bookMetadata = JSON.parse(dataString);
         console.log(bookMetadata);
         stateData = await parseBookData({
