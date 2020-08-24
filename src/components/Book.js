@@ -5,14 +5,26 @@ import React, { useState } from "react";
 
 const WOOK_REGEX = /<script type="application\/ld\+json">[^]*?({[^]+})[^]*?<\/script>[^]*?<!-- Fim Google/;
 
-const getPublisherData = (publisher) => {
+const getPublisherData = (publisher, wookId) => {
   switch (publisher) {
     case "Porto Editora":
-      return { publisher: "", group: "pe" };
+      return {
+        publisher: "",
+        group: "pe",
+        publisherUrl: `www.portoeditora.pt/produtos/ficha/${wookId}`,
+      };
     case "Areal Editores":
-      return { publisher: "areal", group: "pe" };
+      return {
+        publisher: "areal",
+        group: "pe",
+        publisherUrl: `www.arealeditores.pt/produtos/ficha/${wookId}`,
+      };
     case "Raiz Editora / Lisboa Editora":
-      return { publisher: "raiz", group: "pe" };
+      return {
+        publisher: "raiz",
+        group: "pe",
+        publisherUrl: `www.raizeditora.pt/produtos/ficha/${wookId}`,
+      };
     case "Texto Editores":
       return { publisher: "texto", group: "Leya" };
     case "Edições Asa":
@@ -24,15 +36,29 @@ const getPublisherData = (publisher) => {
   }
 };
 
-const getFormattedIsbn = (isbn, { publisher, group }) => {
+const getFormattedIsbn = async (isbn, { publisher, group, publisherUrl }) => {
   if (group === "pe") {
-    if (publisher !== "") return "";
+    if (publisher !== "") {
+      if (!publisherUrl) return "";
+      return await getBookCodeFromPEGroup(publisherUrl);
+    }
     return isbn.split("-")[3] || "";
   }
   return isbn.replace(/-/g, "");
 };
 
-const parseBookData = ({ name, publisher, isbn }) => {
+const getBookCodeFromPEGroup = async (publisherUrl) => {
+  try {
+    const { data } = await axios.get(
+      `https://labs.diogotc.com/portoeditora-schoolbook-code/${publisherUrl}`
+    );
+    return data.code || "";
+  } catch (e) {
+    return "";
+  }
+};
+
+const parseBookData = async ({ name, publisher, isbn, wookId }) => {
   const nameSplit = name.split(" - ");
 
   const typeIndex = nameSplit.findIndex((text) =>
@@ -56,7 +82,7 @@ const parseBookData = ({ name, publisher, isbn }) => {
       : nameSplit[schoolYearIndex].trim().replace(/\.?º ano/i, "");
   if (schoolYearIndex !== -1) nameSplit.splice(schoolYearIndex, 1);
 
-  const publisherData = getPublisherData(publisher);
+  const publisherData = getPublisherData(publisher, wookId);
 
   return {
     name: nameSplit[0] || "",
@@ -64,7 +90,7 @@ const parseBookData = ({ name, publisher, isbn }) => {
     schoolYear,
     isbn,
     ...publisherData,
-    formattedIsbn: getFormattedIsbn(isbn, publisherData),
+    formattedIsbn: await getFormattedIsbn(isbn, publisherData),
   };
 };
 
@@ -84,6 +110,8 @@ const Book = ({ img, url, title, author }) => {
   const [snackbarText, setSnackbarText] = useState("");
   const classes = useStyles();
 
+  const wookId = url.split("/").pop();
+
   const handleSnackbarClose = () => setSnackbarText("");
 
   const onCopy = async () => {
@@ -94,10 +122,11 @@ const Book = ({ img, url, title, author }) => {
         const dataString = WOOK_REGEX.exec(response.data)?.[1] || [];
         const bookMetadata = JSON.parse(dataString);
         console.log(bookMetadata);
-        stateData = parseBookData({
+        stateData = await parseBookData({
           name: bookMetadata.name,
           publisher: bookMetadata.publisher?.name,
           isbn: bookMetadata.isbn,
+          wookId,
         });
         setData(stateData);
       }
@@ -142,16 +171,16 @@ const Book = ({ img, url, title, author }) => {
         <Button variant="contained" color="primary" onClick={onCopy}>
           Copiar Informação
         </Button>
-        <Button
-          component={Link}
-          href={`https://www.portoeditora.pt/produtos/ficha/${url
-            .split("/")
-            .pop()}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Site Porto Editora
-        </Button>
+        {data && data.publisherUrl && (
+          <Button
+            component={Link}
+            href={`https://${data.publisherUrl}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Site Editora
+          </Button>
+        )}
       </div>
       <Snackbar
         anchorOrigin={{
