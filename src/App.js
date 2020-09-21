@@ -38,7 +38,7 @@ export default function App() {
             .getElementsByClassName("search-products")[0]
             .getElementsByClassName("product")
         ).map((v) => ({
-          img: v.getElementsByClassName("img-responsive")[0]?.src,
+          img: v.getElementsByClassName("img-responsive")[0]?.dataset?.src,
           url: `https://www.wook.pt${v
             .getElementsByTagName("a")[0]
             ?.getAttribute("href")}`,
