@@ -3,6 +3,8 @@ import {
   CircularProgress,
   Container,
   Typography,
+  Grid,
+  Switch,
 } from "@material-ui/core";
 import axios from "axios";
 import React, { useState } from "react";
@@ -15,6 +17,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [items, setItems] = useState([]);
+  const [isSchoolbooks, setSchoolbooks] = useState(false);
+
+  const handleSchoolbooks = (e) => setSchoolbooks(e.target.checked);
 
   const onClick = async (input) => {
     try {
@@ -83,9 +88,24 @@ export default function App() {
         <Typography variant="h4" component="h1" gutterBottom>
           Info Livros LPE
         </Typography>
+        <Grid component="label" container alignItems="center" spacing={1}>
+          <Grid item style={{ fontWeight: isSchoolbooks ? "normal" : "bold" }}>
+            Livros Não Escolares
+          </Grid>
+          <Grid item>
+            <Switch
+              color="primary"
+              checked={isSchoolbooks}
+              onChange={handleSchoolbooks}
+            />
+          </Grid>
+          <Grid item style={{ fontWeight: isSchoolbooks ? "bold" : "normal" }}>
+            Livros Escolares
+          </Grid>
+        </Grid>
         <Input onClick={onClick} />
         {items.map((book) => (
-          <Book key={book.url} {...book} />
+          <Book key={book.url} {...book} isSchoolbooks={isSchoolbooks} />
         ))}
         {error && (
           <Typography variant="h6" color="error">

@@ -105,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Book = ({ img, url, title, author, publisher, isbn }) => {
+const Book = ({ img, url, title, author, publisher, isbn, isSchoolbooks }) => {
   const [data, setData] = useState(null);
   const [snackbarText, setSnackbarText] = useState("");
   const classes = useStyles();
@@ -141,17 +141,29 @@ const Book = ({ img, url, title, author, publisher, isbn }) => {
         setData(stateData);
       }
       console.log(stateData);
-      await navigator.clipboard.writeText(
-        [
-          "",
-          stateData.name,
-          stateData.schoolYear,
-          stateData.formattedIsbn,
-          stateData.type,
-          stateData.publisher,
-          stateData.group,
-        ].join("\t")
-      );
+      if (isSchoolbooks) {
+        await navigator.clipboard.writeText(
+          [
+            "",
+            stateData.name,
+            stateData.schoolYear,
+            stateData.formattedIsbn,
+            stateData.type,
+            stateData.publisher,
+            stateData.group,
+          ].join("\t")
+        );
+      } else {
+        await navigator.clipboard.writeText(
+          [
+            "",
+            stateData.name,
+            stateData.formattedIsbn,
+            stateData.publisher,
+            stateData.group,
+          ].join("\t")
+        );
+      }
       setSnackbarText("Texto copiado");
     } catch (e) {
       console.error(e);
