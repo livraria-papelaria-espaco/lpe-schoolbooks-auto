@@ -32,7 +32,7 @@ const getPublisherData = (publisher, wookId) => {
     case "Santillana":
       return { publisher: "", group: "santillana" };
     default:
-      return { publisher: "", group: publisher?.toLowerCase() || "" };
+      return { publisher: publisher?.toLowerCase() || "", group: "" };
   }
 };
 
