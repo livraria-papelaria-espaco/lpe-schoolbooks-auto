@@ -38,11 +38,8 @@ const getPublisherData = (publisher, wookId) => {
 
 const getFormattedIsbn = async (isbn, { publisher, group, publisherUrl }) => {
   if (group === "pe") {
-    if (publisher !== "") {
-      if (!publisherUrl) return "";
-      return await getBookCodeFromPEGroup(publisherUrl);
-    }
-    return isbn.split("-")[3] || "";
+    if (!publisherUrl) return "";
+    return await getBookCodeFromPEGroup(publisherUrl);
   }
   return isbn.replace(/-/g, "");
 };
