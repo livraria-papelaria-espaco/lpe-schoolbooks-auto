@@ -2,8 +2,10 @@ import { Button, Link, Snackbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import publisherMapping from "../data/publisherMapping.json";
 
-const WOOK_REGEX = /<script type="application\/ld\+json">[^]*?({[^]+})[^]*?<\/script>[^]*?<!-- Fim Google/;
+const WOOK_REGEX =
+  /<script type="application\/ld\+json">[^]*?({[^]+})[^]*?<\/script>[^]*?<!-- Fim Google/;
 
 const getPublisherData = (publisher, wookId) => {
   switch (publisher) {
@@ -32,6 +34,23 @@ const getPublisherData = (publisher, wookId) => {
     case "Santillana":
       return { publisher: "", group: "santillana" };
     default:
+      const normalized =
+        publisher
+          ?.normalize("NFD")
+          .replace(/\p{Diacritic}/gu, "")
+          .toLowerCase()
+          .trim() || "";
+
+      const [group] =
+        Object.entries(publisherMapping).find(
+          ([_group, associatedPublishers]) =>
+            associatedPublishers.includes(normalized)
+        ) || [];
+
+      if (group) {
+        return { publisher: normalized, group };
+      }
+
       return { publisher: publisher?.toLowerCase() || "", group: "" };
   }
 };
