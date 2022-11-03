@@ -4,8 +4,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import publisherMapping from "../data/publisherMapping.json";
 
-const WOOK_REGEX =
-  /<script type="application\/ld\+json">[^]*?({[^]+})[^]*?<\/script>[^]*?<!-- Fim Google/;
+const WOOK_REGEX = /<script type="application\/ld\+json">([^]+?)<\/script>/;
 
 const getPublisherData = (publisher, wookId) => {
   switch (publisher) {
