@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import Book from "./components/Book";
 import Input from "./components/Input";
 
-const WOOK_REGEX = /<script type="application\/ld\+json">[^]*?({[^]+})[^]*?<\/script>[^]*?<!-- Fim Google/;
+const WOOK_REGEX = /<script type="application\/ld\+json">([^]+?)<\/script>/;
 
 export default function App() {
   const [loading, setLoading] = useState(false);
