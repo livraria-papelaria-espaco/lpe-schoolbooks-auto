@@ -27,10 +27,9 @@ export default function App() {
       setItems([]);
       setLoading(true);
       const response = await axios.get(
-        `https://www.wook.pt/pesquisa/${encodeURIComponent(input).replace(
-          " ",
-          "+"
-        )}`
+        `https://www.wook.pt/pesquisa?keyword=${encodeURIComponent(
+          input
+        ).replace(" ", "+")}`
       );
       const domParser = new DOMParser();
       const responseDocument = domParser.parseFromString(
@@ -40,15 +39,15 @@ export default function App() {
       try {
         const data = Array.from(
           responseDocument
-            .getElementsByClassName("search-products")[0]
+            .getElementsByClassName("results-container")[0]
             .getElementsByClassName("product")
         ).map((v) => ({
           img: v.getElementsByClassName("img-responsive")[0]?.dataset?.src,
           url: `https://www.wook.pt${v
             .getElementsByTagName("a")[0]
             ?.getAttribute("href")}`,
-          title: v.getElementsByClassName("title-lnk")[0]?.innerText?.trim(),
-          author: v.getElementsByClassName("autor")[0]?.innerText?.trim(),
+          title: v.getElementsByClassName("title")[0]?.innerText?.trim(),
+          author: v.getElementsByClassName("authors")[0]?.innerText?.trim(),
         }));
         setItems(data);
         setLoading(false);
