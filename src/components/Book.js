@@ -12,19 +12,19 @@ const getPublisherData = (publisher, wookId) => {
       return {
         publisher: "",
         group: "pe",
-        publisherUrl: `www.portoeditora.pt/produtos/ficha/${wookId}`,
+        publisherUrl: `www.portoeditora.pt/${wookId}`,
       };
     case "Areal Editores":
       return {
         publisher: "areal",
         group: "pe",
-        publisherUrl: `www.arealeditores.pt/produtos/ficha/${wookId}`,
+        publisherUrl: `www.arealeditores.pt/${wookId}`,
       };
     case "Raiz Editora / Lisboa Editora":
       return {
         publisher: "raiz",
         group: "pe",
-        publisherUrl: `www.raizeditora.pt/produtos/ficha/${wookId}`,
+        publisherUrl: `www.raizeditora.pt/${wookId}`,
       };
     case "Texto Editores":
       return { publisher: "texto", group: "Leya" };
@@ -65,7 +65,7 @@ const getFormattedIsbn = async (isbn, { publisher, group, publisherUrl }) => {
 const getBookCodeFromPEGroup = async (publisherUrl) => {
   try {
     const { data } = await axios.get(
-      `https://labs.diogotc.com/portoeditora-schoolbook-code/${publisherUrl}`
+      `https://book-api.diogotc.com/portoeditora/bookid-to-pe-code/${publisherUrl}`
     );
     return data.code || "";
   } catch (e) {
