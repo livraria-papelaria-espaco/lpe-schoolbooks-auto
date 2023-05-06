@@ -1,4 +1,10 @@
-import { Button, Link, Snackbar, Typography } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  Link,
+  Snackbar,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
@@ -118,10 +124,23 @@ const useStyles = makeStyles((theme) => ({
     height: 200,
     marginRight: theme.spacing(2),
   },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: "relative",
+    display: "inline-block",
+  },
+  buttonProgress: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -12,
+    marginLeft: -12,
+  },
 }));
 
 const Book = ({ img, url, title, author, publisher, isbn, isSchoolbooks }) => {
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [snackbarText, setSnackbarText] = useState("");
   const classes = useStyles();
 
@@ -141,6 +160,7 @@ const Book = ({ img, url, title, author, publisher, isbn, isSchoolbooks }) => {
 
   const onCopy = async () => {
     try {
+      setLoading(true);
       let stateData = data;
       if (!stateData) {
         const response = await axios.get(url);
@@ -183,6 +203,8 @@ const Book = ({ img, url, title, author, publisher, isbn, isSchoolbooks }) => {
     } catch (e) {
       console.error(e);
       setSnackbarText("Ocorreu um erro");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -205,9 +227,19 @@ const Book = ({ img, url, title, author, publisher, isbn, isSchoolbooks }) => {
               data.group,
             ].join("  |  ")}
         </Typography>
-        <Button variant="contained" color="primary" onClick={onCopy}>
-          Copiar Informação
-        </Button>
+        <div className={classes.wrapper}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={onCopy}
+            disabled={loading}
+          >
+            Copiar Informação
+          </Button>
+          {loading && (
+            <CircularProgress size={24} className={classes.buttonProgress} />
+          )}
+        </div>
         {data && data.publisherUrl && (
           <Button
             component={Link}
